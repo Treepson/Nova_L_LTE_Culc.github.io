@@ -49,7 +49,7 @@
     modulesExt: {
   "Розширювачі зон":[
     { name:"M-Z box",   img:"assets/modules/M-Z box.png", normal:60, alarm:60 },
-    { name:"M-ZP box",  img:"assets/modules/M-ZPBox.png", normal:200, alarm:200 },
+    { name:"M-ZP box",  img:"assets/modules/M-ZPbox.png", normal:200, alarm:200 },
     { name:"M-ZP sBox", img:"assets/modules/M-ZP sBox.png", normal:150, alarm:150 },
     { name:"M-ZP mBox", img:"assets/modules/M-ZP mBox.png", normal:200, alarm:200 }
   ],
@@ -283,9 +283,50 @@
         return c;
       };
       tr.appendChild(td(item.type));
-      tr.appendChild(td(item.name));
-      tr.appendChild(td(item.normal));
-      tr.appendChild(td(item.alarm));
+
+      if(item.custom){
+        const tdName=document.createElement("td");
+        const inpName=document.createElement("input");
+        inpName.className="ext-edit";
+        inpName.value=item.name;
+        inpName.addEventListener("input",()=>{item.name=inpName.value;});
+        tdName.appendChild(inpName);
+        tr.appendChild(tdName);
+
+        const tdNorm=document.createElement("td");
+        const inpNorm=document.createElement("input");
+        inpNorm.type="number";
+        inpNorm.className="ext-edit";
+        inpNorm.value=item.normal;
+        inpNorm.addEventListener("input",()=>{
+          let v=parseFloat(inpNorm.value||"0");
+          if(isNaN(v)||v<0) v=0;
+          item.normal=v;
+          inpNorm.value=v;
+          updateTotals();
+        });
+        tdNorm.appendChild(inpNorm);
+        tr.appendChild(tdNorm);
+
+        const tdAlarm=document.createElement("td");
+        const inpAlarm=document.createElement("input");
+        inpAlarm.type="number";
+        inpAlarm.className="ext-edit";
+        inpAlarm.value=item.alarm;
+        inpAlarm.addEventListener("input",()=>{
+          let v=parseFloat(inpAlarm.value||"0");
+          if(isNaN(v)||v<0) v=0;
+          item.alarm=v;
+          inpAlarm.value=v;
+          updateTotals();
+        });
+        tdAlarm.appendChild(inpAlarm);
+        tr.appendChild(tdAlarm);
+      }else{
+        tr.appendChild(td(item.name));
+        tr.appendChild(td(item.normal));
+        tr.appendChild(td(item.alarm));
+      }
 
       const tdQty = document.createElement("td");
       tdQty.className="qty";
@@ -367,7 +408,8 @@
       normal:obj.normal||0,
       alarm:obj.alarm||0,
       qty:1,
-      fixed:false
+      fixed:false,
+      custom: !!obj.custom
     };
 
     const context = ctx || currentContext;
@@ -716,13 +758,25 @@ function openModalFor(section){
       tabModsBtn.style.display = "none";
       genericBody.classList.add("active");
       modalTitle.textContent="Датчики";
-      buildGenericList(DATA.sensors,"Датчик");
+
+      const list = [
+        ...DATA.sensors,
+        { name: "Своє значення", img: "assets/tiras_logo_w.png", normal: 0, alarm: 0, custom: true }
+      ];
+
+      buildGenericList(list,"Датчик");
     }else if(section==="sirens"){
       tabKbBtn.style.display   = "none";
       tabModsBtn.style.display = "none";
       genericBody.classList.add("active");
       modalTitle.textContent="Сирени";
-      buildGenericList(DATA.sirens,"Сирена");
+
+      const list = [
+        ...DATA.sirens,
+        { name: "Своє значення", img: "assets/tiras_logo_w.png", normal: 0, alarm: 0, custom: true }
+      ];
+
+      buildGenericList(list,"Сирена");
     }
   }
 
@@ -782,11 +836,49 @@ function openModalFor(section){
       const tdAct   = document.createElement("td");
 
       tdType.textContent  = r.type;
-      tdName.textContent  = r.name;
-      tdNorm.textContent  = r.normal;
-      tdAlarm.textContent = r.alarm;
 
       const isUniqueMod = (r.name === "M-Z" || r.name === "M-OUT2R");
+
+      if(r.custom){
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.className = "ext-edit";
+        nameInput.value = r.name;
+        nameInput.addEventListener("input", ()=>{
+          r.name = nameInput.value;
+        });
+        tdName.appendChild(nameInput);
+
+        const normInput = document.createElement("input");
+        normInput.type = "number";
+        normInput.className = "ext-edit";
+        normInput.value = r.normal;
+        normInput.addEventListener("input", ()=>{
+          let v = parseFloat(normInput.value || "0");
+          if(isNaN(v) || v < 0) v = 0;
+          r.normal = v;
+          normInput.value = v;
+          recalcExtDevice(extId);
+        });
+        tdNorm.appendChild(normInput);
+
+        const alarmInput = document.createElement("input");
+        alarmInput.type = "number";
+        alarmInput.className = "ext-edit";
+        alarmInput.value = r.alarm;
+        alarmInput.addEventListener("input", ()=>{
+          let v = parseFloat(alarmInput.value || "0");
+          if(isNaN(v) || v < 0) v = 0;
+          r.alarm = v;
+          alarmInput.value = v;
+          recalcExtDevice(extId);
+        });
+        tdAlarm.appendChild(alarmInput);
+      }else{
+        tdName.textContent  = r.name;
+        tdNorm.textContent  = r.normal;
+        tdAlarm.textContent = r.alarm;
+      }
 
       if(r.fixed || isUniqueMod){
         tdQty.textContent = r.qty;
@@ -843,7 +935,6 @@ function openModalFor(section){
       capEl.textContent = "—";
     }
   }
-
   function removeExtDevice(extId){
     const dev = extDevices.get(extId);
     if(!dev) return;
