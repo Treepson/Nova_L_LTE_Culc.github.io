@@ -7,11 +7,19 @@
   --line:#1b1b1b;
 }
 *{box-sizing:border-box}
-body{
+@font-face {
+  font-family: "Neue Machina";
+  src: url("assets/fonts/neu_machina/NeueMachina-Regular.woff2") format("woff2"),
+       url("assets/fonts/neu_machina/NeueMachina-Regular.woff") format("woff"),
+       url("assets/fonts/neu_machina/NeueMachina-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+body {
   margin:0;
   background:var(--bg);
   color:var(--fg);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  font-family: "Neue Machina", sans-serif;
 }
 .top-header{
   text-align:center;
