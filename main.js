@@ -51,7 +51,7 @@
     modulesExt: {
   "Розширювачі зон":[
     { name:"M-Z box",   img:"assets/modules/M-Z box.png", normal:60, alarm:60 },
-    { name:"M-ZP box",  img:"assets/modules/M-ZPBox.png", normal:200, alarm:200 },
+    { name:"M-ZP box",  img:"assets/modules/M-ZPbox.png", normal:200, alarm:200 },
     { name:"M-ZP sBox", img:"assets/modules/M-ZP sBox.png", normal:150, alarm:150 },
     { name:"M-ZP mBox", img:"assets/modules/M-ZP mBox.png", normal:200, alarm:200 }
   ],
@@ -133,7 +133,10 @@
   const tabModsBtn  = qs('.tab[data-tab="mods"]');
   const closeBtn    = qs("#closeModal");
   const clearBtn    = qs("#clearAll");
-
+  const deviceTypeSwitch = document.getElementById("device-type-switch");
+  if (deviceTypeSwitch) {
+  deviceTypeSwitch.dataset.visible = "false";
+  }
   const cart = new Map();
 
   const universalSlots = [null, null];
@@ -948,6 +951,9 @@ function openModalFor(section){
     }
     extDevices.delete(extId);
     switchDeviceTab("main");
+    if (deviceTypeSwitch && extDevices.size === 0) {
+    deviceTypeSwitch.dataset.visible = "false";
+    }
   }
 
   function createExtTab(mod){
@@ -1075,6 +1081,9 @@ function openModalFor(section){
 
     // підключаємо лісенери для нових "+"
     attachEvents();
+    if (deviceTypeSwitch && extDevices.size === 1) {
+  deviceTypeSwitch.dataset.visible = "true";
+  }
   }
 
 function attachEvents(){
