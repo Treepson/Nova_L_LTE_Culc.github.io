@@ -51,7 +51,7 @@
     modulesExt: {
   "Розширювачі зон":[
     { name:"M-Z box",   img:"assets/modules/M-Z box.png", normal:60, alarm:60 },
-    { name:"M-ZP box",  img:"assets/modules/M-ZPBox.png", normal:200, alarm:200 },
+    { name:"M-ZP box",  img:"assets/modules/M-ZPbox.png", normal:200, alarm:200 },
     { name:"M-ZP sBox", img:"assets/modules/M-ZP sBox.png", normal:150, alarm:150 },
     { name:"M-ZP mBox", img:"assets/modules/M-ZP mBox.png", normal:200, alarm:200 }
   ],
@@ -556,7 +556,6 @@ function clearTabs(){
   section.className="mod-section";
 
   const h=document.createElement("h4");
-  h.textContent="Модулі універсального слота";
   section.appendChild(h);
 
   const grid=document.createElement("div");
@@ -692,8 +691,8 @@ function openModalFor(section){
     modal.classList.add("open");
 
     // за замовчуванням показуємо обидві вкладки
-    tabKbBtn.style.display   = "inline-flex";
-    tabModsBtn.style.display = "inline-flex";
+    tabKbBtn.style.display   = "none";
+    tabModsBtn.style.display = "none";
 
     clearTabs();
     genericBody.classList.remove("active");
