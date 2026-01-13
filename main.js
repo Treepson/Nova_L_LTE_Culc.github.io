@@ -821,7 +821,7 @@ function openModalFor(section){
     }
   }
 
-  function recalcExtDevice(extId){
+    function recalcExtDevice(extId){
     const dev = extDevices.get(extId);
     if(!dev) return;
     const { rows, dom } = dev;
@@ -893,12 +893,13 @@ function openModalFor(section){
         inp.step = "1";
         inp.value = r.qty;
         inp.addEventListener("input", ()=>{
-          let v = parseInt(inp.value || "1", 10);
-          if(isNaN(v) || v < 1) v = 1;
-          r.qty = v;
-          inp.value = v;
-          recalcExtDevice(extId);
-        });
+        let v = parseInt(inp.value || "1", 10);
+        if(isNaN(v) || v < 1) v = 1;
+        r.qty = v;
+        inp.value = v;
+
+        updateExtTotals(extId);
+      });
         tdQty.appendChild(inp);
       }
 
@@ -938,7 +939,51 @@ function openModalFor(section){
     }else{
       capEl.textContent = "—";
     }
+  // ===== UPDATE EXT HOTSPOT STATES (ONLY M-Z & M-OUT2R) =====
+const page = dom.page;
+
+// M-Z on extender (sens2)
+const mzBtn = page.querySelector(".hot-ext-sens2");
+if (mzBtn) {
+  const hasMz = rows.some(r => r.name === "M-Z");
+  mzBtn.classList.toggle("occupied", hasMz);
+}
+
+// M-OUT2R on extender (modx)
+const modxBtn = page.querySelector(".hot-ext-modx");
+if (modxBtn) {
+  const hasOut = rows.some(r => r.name === "M-OUT2R");
+  modxBtn.classList.toggle("occupied", hasOut);
+}
+}
+  function updateExtTotals(extId){
+  const dev = extDevices.get(extId);
+  if(!dev) return;
+
+  const { rows, dom } = dev;
+  const { sumNormEl, sumAlarmEl, hoursEl, reserveEl, capEl } = dom;
+
+  let sumNorm = 0;
+  let sumAlarm = 0;
+
+  rows.forEach(r=>{
+    sumNorm  += r.normal * r.qty;
+    sumAlarm += r.alarm  * r.qty;
+  });
+
+  sumNormEl.textContent  = sumNorm || "—";
+  sumAlarmEl.textContent = sumAlarm || "—";
+
+  const hours   = parseFloat(hoursEl.value || "0");
+  const reserve = parseFloat(reserveEl.value || "1.25");
+
+  if(sumNorm > 0 && hours > 0){
+    const cap = (sumNorm * hours / 1000) * reserve;
+    capEl.textContent = cap.toFixed(2);
+  }else{
+    capEl.textContent = "—";
   }
+}
   function removeExtDevice(extId){
     const dev = extDevices.get(extId);
     if(!dev) return;
