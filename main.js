@@ -1001,6 +1001,17 @@ if (modxBtn) {
     }
   }
 
+  function clearExtDevice(extId){
+  const dev = extDevices.get(extId);
+  if(!dev) return;
+
+  // залишаємо тільки базовий рядок "Розширювач"
+  dev.rows = dev.rows.filter(r => r.fixed);
+
+  recalcExtDevice(extId);
+  }
+
+
   function createExtTab(mod){
     if(!deviceTabsEl || !extPagesEl) return;
     const safeId = "ext_"+mod.name.replace(/\s+/g,"_");
@@ -1032,6 +1043,9 @@ if (modxBtn) {
 
       <section class="table-wrap ext-table">
         <table>
+        <div class="table-actions">
+          <button class="btn ext-clear">Очистити все</button>
+        </div>
           <thead>
             <tr>
               <th>Тип</th>
@@ -1101,11 +1115,13 @@ if (modxBtn) {
     const reserveEl  = page.querySelector(".ext-reserve");
     const capEl      = page.querySelector(".ext-capacity-val");
     const removeBtn  = page.querySelector(".ext-remove");
+    const clearBtn = page.querySelector(".ext-clear");
+
 
     const dev = {
       name: mod.name,
       rows: [],
-      dom: { page, rowsBody, sumNormEl, sumAlarmEl, hoursEl, reserveEl, capEl, removeBtn }
+      dom: { page, rowsBody, sumNormEl, sumAlarmEl, hoursEl, reserveEl, capEl, removeBtn, clearBtn }
     };
     extDevices.set(safeId, dev);
 
@@ -1122,7 +1138,9 @@ if (modxBtn) {
 
     hoursEl.addEventListener("input", ()=>recalcExtDevice(safeId));
     reserveEl.addEventListener("change", ()=>recalcExtDevice(safeId));
+    clearBtn.addEventListener("click", ()=>{clearExtDevice(safeId);});
     removeBtn.addEventListener("click", ()=>removeExtDevice(safeId));
+    
 
     // підключаємо лісенери для нових "+"
     attachEvents();
